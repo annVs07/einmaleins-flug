@@ -94,10 +94,6 @@ h1 { font: 800 clamp(34px, 9vw, 52px)/1.05 var(--display); margin: 0; text-wrap:
 .map .trip { fill: none; stroke: var(--accent); stroke-width: 4; stroke-dasharray: 10 8; stroke-linecap: round; }
 .map .c { fill: #fff; stroke: var(--ink); stroke-width: 3; } .map .c.v { fill: var(--accent); }
 .map text { font: 800 22px var(--body); fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 5; }
-.credits { font-size: 12px; color: var(--muted); max-width: 420px; width: 100%; margin-top: 6px; }
-.credits summary { cursor: pointer; font-weight: 800; }
-.credits ul { margin: 6px 0 0; padding-left: 18px; }
-.credits a { color: inherit; }
 .postcard .scene::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; background: linear-gradient(to top, rgba(0,0,0,.22), transparent); pointer-events: none; }
 .album { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
 .album .nav { display: flex; align-items: center; justify-content: center; gap: 18px; }
@@ -169,9 +165,6 @@ const PH = {
   Kyjiw: ["img/kyjiw.jpg", "Rbrechko", "CC BY-SA 4.0", "File:80-391-0151_Kyiv_St.Sophia%27s_Cathedral_RB_18.jpg"]
 };
 for (const k in PH) if (CITY[k]) CITY[k].photo = PH[k][0];
-function credits() {
-  return `<details class="credits"><summary>Bildnachweise</summary><p>Fotos der Wahrzeichen von Wikimedia Commons (zugeschnitten):</p><ul>${Object.entries(PH).map(([c, [, a, l, f]]) => `<li>${c}: ${a}, ${l} · <a href="https://commons.wikimedia.org/wiki/${f}" target="_blank" rel="noopener">Quelle</a></li>`).join("")}</ul></details>`;
-}
 function lmSVG(city) {
   let svg = CITY[city].lm;
   if (city === "Rom") { let h = ""; [[66, 12], [86, 14], [104, 16]].forEach(([y, ht]) => { for (let x = 14; x < 108; x += 14) h += `<rect x="${x}" y="${y}" width="8" height="${ht - 2}" rx="4"/>`; }); svg = svg.replace('<g class="h" id="arches"></g>', `<g class="h">${h}</g>`); }
@@ -355,8 +348,7 @@ function startScreen() {
     <button class="big" id="go">Start ✈</button>
     ${leg > 0 ? `<button class="ghost" id="cards">📮 Meine Postkarten (${postcards().length})</button><div class="label">Deine Weltreise</div>${mapSVG()}` : ""}
     <div class="label">Welche Reihen?</div>
-    <div class="chips">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="chip" data-n="${n}" aria-pressed="${rows.includes(n)}">${n}</button>`).join("")}</div>
-    ${credits()}`;
+    <div class="chips">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="chip" data-n="${n}" aria-pressed="${rows.includes(n)}">${n}</button>`).join("")}</div>`;
   document.querySelectorAll(".chip").forEach(c => c.onclick = () => {
     const n = +c.dataset.n, on = rows.includes(n);
     if (on && rows.length === 1) return;
