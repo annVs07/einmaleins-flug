@@ -94,6 +94,11 @@ h1 { font: 800 clamp(34px, 9vw, 52px)/1.05 var(--display); margin: 0; text-wrap:
 .map .trip { fill: none; stroke: var(--accent); stroke-width: 4; stroke-dasharray: 10 8; stroke-linecap: round; }
 .map .c { fill: #fff; stroke: var(--ink); stroke-width: 3; } .map .c.v { fill: var(--accent); }
 .map text { font: 800 22px var(--body); fill: var(--ink); paint-order: stroke; stroke: #fff; stroke-width: 5; }
+.credits { font-size: 12px; color: var(--muted); max-width: 420px; width: 100%; margin-top: 6px; }
+.credits summary { cursor: pointer; font-weight: 800; }
+.credits ul { margin: 6px 0 0; padding-left: 18px; }
+.credits a { color: inherit; }
+.postcard .scene::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 22%; background: linear-gradient(to top, rgba(0,0,0,.22), transparent); pointer-events: none; }
 .album { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
 .album .nav { display: flex; align-items: center; justify-content: center; gap: 18px; }
 .album .arrow { font: 800 30px var(--display); width: 58px; height: 58px; border-radius: 50%; background: #fff; color: var(--ink); box-shadow: 0 4px 0 #c9dced; }
@@ -149,6 +154,24 @@ const CITY = {
   Rom: { sky: ["#78b9ea", "#ffe4c4"], name: "das Kolosseum", lm: '<path d="M6 120V58q54-22 108 0v62z"/><g class="h" id="arches"></g>' },
   Kyjiw: { sky: ["#6fb2ec", "#fff1b8"], name: "die goldenen Kuppeln", lm: '<rect x="26" y="70" width="68" height="50"/><rect x="48" y="50" width="24" height="22"/><path class="a" d="M60 22q14 16 11 28H49q-3-12 11-28z"/><path class="a" d="M36 50q10 12 8 20H28q-2-8 8-20z"/><path class="a" d="M84 50q10 12 8 20H76q-2-8 8-20z"/><rect x="59" y="10" width="2" height="12"/><rect x="55" y="14" width="10" height="2"/><path class="s" d="M52 120V98q8-10 16 0v22z"/>' }
 };
+// real photos (Wikimedia Commons) used as postcard backgrounds; [file, author, licence, source page]
+const PH = {
+  Frankfurt: ["img/frankfurt.jpg", "Wolfgang Moroder", "CC BY-SA 3.0", "File:Römerberg_houses_on_the_west_side.jpg"],
+  Paris: ["img/paris.jpg", "Benh Lieu Song", "gemeinfrei", "File:Tour_Eiffel_Wikimedia_Commons.jpg"],
+  London: ["img/london.jpg", "Julian Herzog", "CC BY 4.0", "File:Big_Ben_Elizabeth_Tower_London_2023_01.jpg"],
+  "New York": ["img/newyork.jpg", "銀河市長", "CC BY-SA 4.0", "File:Statue_of_liberty_front.jpg"],
+  Rio: ["img/rio.jpg", "Donatas Dabravolskas", "CC BY-SA 4.0", "File:Redentor_Over_Clouds_1.jpg"],
+  Kairo: ["img/kairo.jpg", "Ricardo Liberato", "CC BY-SA 2.0", "File:All_Gizah_Pyramids.jpg"],
+  Dubai: ["img/dubai.jpg", "Jpbowen", "CC BY-SA 4.0", "File:Burj_Khalifa_from_the_sea,_Dubai.jpg"],
+  Tokio: ["img/tokio.jpg", "Supanut Arunoprayote", "CC BY 4.0", "File:Chureito_Pagoda_and_Mount_Fuji_20241022.jpg"],
+  Sydney: ["img/sydney.jpg", "DXR", "CC BY-SA 4.0", "File:Sydney_Opera_House_and_Harbour_Bridge,_southeast_view_20230224_1.jpg"],
+  Rom: ["img/rom.jpg", "Livioandronico2013", "CC BY-SA 4.0", "File:Colosseum_seen_from_south.jpg"],
+  Kyjiw: ["img/kyjiw.jpg", "Rbrechko", "CC BY-SA 4.0", "File:80-391-0151_Kyiv_St.Sophia%27s_Cathedral_RB_18.jpg"]
+};
+for (const k in PH) if (CITY[k]) CITY[k].photo = PH[k][0];
+function credits() {
+  return `<details class="credits"><summary>Bildnachweise</summary><p>Fotos der Wahrzeichen von Wikimedia Commons (zugeschnitten):</p><ul>${Object.entries(PH).map(([c, [, a, l, f]]) => `<li>${c}: ${a}, ${l} · <a href="https://commons.wikimedia.org/wiki/${f}" target="_blank" rel="noopener">Quelle</a></li>`).join("")}</ul></details>`;
+}
 function lmSVG(city) {
   let svg = CITY[city].lm;
   if (city === "Rom") { let h = ""; [[66, 12], [86, 14], [104, 16]].forEach(([y, ht]) => { for (let x = 14; x < 108; x += 14) h += `<rect x="${x}" y="${y}" width="8" height="${ht - 2}" rx="4"/>`; }); svg = svg.replace('<g class="h" id="arches"></g>', `<g class="h">${h}</g>`); }
@@ -332,7 +355,8 @@ function startScreen() {
     <button class="big" id="go">Start ✈</button>
     ${leg > 0 ? `<button class="ghost" id="cards">📮 Meine Postkarten (${postcards().length})</button><div class="label">Deine Weltreise</div>${mapSVG()}` : ""}
     <div class="label">Welche Reihen?</div>
-    <div class="chips">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="chip" data-n="${n}" aria-pressed="${rows.includes(n)}">${n}</button>`).join("")}</div>`;
+    <div class="chips">${[1,2,3,4,5,6,7,8,9,10].map(n => `<button class="chip" data-n="${n}" aria-pressed="${rows.includes(n)}">${n}</button>`).join("")}</div>
+    ${credits()}`;
   document.querySelectorAll(".chip").forEach(c => c.onclick = () => {
     const n = +c.dataset.n, on = rows.includes(n);
     if (on && rows.length === 1) return;
