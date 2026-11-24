@@ -1,0 +1,14 @@
+import fs from 'fs';
+import { feature } from 'topojson-client';
+import { geoNaturalEarth1, geoPath } from 'd3-geo';
+const topo = JSON.parse(fs.readFileSync('node_modules/world-atlas/land-110m.json'));
+const land = feature(topo, topo.objects.land);
+land.features = land.features.filter(f => true);
+const W=1000,H=520;
+const proj = geoNaturalEarth1().fitExtent([[0,-40],[W,H+70]], {type:'Sphere'});
+const path = geoPath(proj).digits(0);
+let d = path(land).replace(/Z/g,'Z');
+const cities = {Frankfurt:[8.68,50.11],Paris:[2.35,48.86],London:[-0.13,51.51],"New York":[-74.0,40.71],Rio:[-43.2,-22.9],Kairo:[31.24,30.04],Dubai:[55.27,25.2],Tokio:[139.69,35.69],Sydney:[151.21,-33.87],Rom:[12.5,41.9],Kyjiw:[30.52,50.45]};
+const pts = Object.fromEntries(Object.entries(cities).map(([k,v])=>[k,proj(v).map(Math.round)]));
+fs.writeFileSync('map.json', JSON.stringify({d, pts}));
+console.log(d.length, JSON.stringify(pts));
